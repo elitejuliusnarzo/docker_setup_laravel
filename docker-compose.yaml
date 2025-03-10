@@ -1,0 +1,62 @@
+services:
+  #______________________________ SERVICE NGINX PROXY ___________________________________________________
+  nginx_proxy:
+    image: nginx:latest
+    ports:
+      - "80:80"  # The only service directly using port 80
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/sites/:/etc/nginx/conf.d/:ro
+    depends_on:
+      - {app_repository_name}
+      - db
+    networks:
+      - app_network
+
+
+#______________________________ SERVICE FOR LARAVEL {APP_REPOSITORY_NAME} ___________________________________________________
+  app_repository_name: #required to edit this and change into your {app_repository_name} (ex. krbs_kids_api)
+    build:
+      context: repo_{app_repository_name}
+      dockerfile: Dockerfile
+    volumes:
+      - ./repo_{app_repository_name}/{app_repository_name}:/var/www/html/{app_repository_name}
+    networks:
+      - app_network
+    expose:
+      - "9000"
+    depends_on:
+      - db
+
+#______________________________SERVICE FOR MYSQL SERVICE ___________________________________________________
+  db:
+    image: mysql:5.7.42
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 3lit3@docker #you can change 3lit3@docker if desired
+      MYSQL_PASSWORD: 3lit3@docker #you can change 3lit3@docker if desired
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - app_network
+    ports:
+      - '3307:3306'
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=3lit3@docker #you can change 3lit3@docker if desired
+    networks:
+      - app_network
+    ports:
+      - "6380:6379"  # Expose Redis on port 6380
+    command: redis-server --requirepass 3lit3@docker #you can change 3lit3@docker if desired
+    volumes:
+      - ./redis-data:/data
+
+#______________________________ APP NETWORK FOR ALL SERVICES ___________________________________________________
+networks:
+  app_network:
+    driver: bridge
