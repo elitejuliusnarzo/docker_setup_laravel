@@ -42,20 +42,6 @@ services:
     ports:
       - '3307:3306'
 
-  redis:
-    image: redis:latest
-    container_name: redis
-    restart: unless-stopped
-    environment:
-      - REDIS_PASSWORD=3lit3@docker #you can change 3lit3@docker if desired
-    networks:
-      - app_network
-    ports:
-      - "6380:6379"  # Expose Redis on port 6380
-    command: redis-server --requirepass 3lit3@docker #you can change 3lit3@docker if desired
-    volumes:
-      - ./redis-data:/data
-
 #______________________________ APP NETWORK FOR ALL SERVICES ___________________________________________________
 networks:
   app_network:
