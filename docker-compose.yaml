@@ -19,8 +19,13 @@ services:
     build:
       context: repo_{app_repository_name}
       dockerfile: Dockerfile
+      args:
+        USER: julius
+        APP_REPOSITORY_NAME: {app_repository_name}
     volumes:
       - ./repo_{app_repository_name}/{app_repository_name}:/var/www/html/{app_repository_name}
+    working_dir: /var/www/html/{app_repository_name}
+    command: sh -c "composer install && php-fpm"
     networks:
       - app_network
     expose:
